@@ -38,19 +38,14 @@ OFS.Content = React.createClass({
     this.setState({display: !this.state.display});
   },
   render: function() {
+    var content = null;
     if (this.state.display) {
-      return (
-        <div className="OFS_Content">
-          <h2 className="OFS_title" onClick={this.onClick}>{this.props.title}</h2>
-          <div className="OFS_content">
-            {this.props.children}
-          </div>
-        </div>
-      );
+      var content = <div className="OFS_content">{this.props.children}</div>;
     }
     return (
       <div className="OFS_Content" onClick={this.onClick}>
         <h2 className="OFS_title">{this.props.title}</h2>
+        {content}
       </div>
     );
   }
@@ -97,10 +92,10 @@ OFS.User = React.createClass({
   },
   render: function() {
     // TODO: create gravatar url
-    var src="https://www.gravatar.com/avatar/b448a72e3f30e454f7a55ac06a67e448?rating=PG&size=50";
+    var src="https://www.gravatar.com/avatar/b448a72e3f30e454f7a55ac06a67e448?rating=PG&size=30";
     return (
       <div className="OFS_User">
-        <img src={src} ></img>
+        <img src={src}></img>
         <p>{this.props.user}</p>
       </div>
     );
@@ -123,22 +118,11 @@ OFS.Anker = React.createClass({
   }
 });
 
-OFS.Contents = React.createClass({
-  render: function() {
-    return (
-      <div className="OFS_Contents">
-        {this.props.data}
-      </div>
-    );
-  }
-});
-
 OFS.Main = React.createClass({
   render: function() {
     return (
       <div className="OFS_Main">
         <OFS.Description />
-        <OFS.Anker href="/js/main.js" />
         <OFS.User user="kajiiiro" />
       </div>
     );
