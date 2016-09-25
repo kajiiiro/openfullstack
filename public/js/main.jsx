@@ -39,12 +39,17 @@ OFS.Content = React.createClass({
   },
   render: function() {
     var content = null;
+    var src = "/img/arrow_right.png";
     if (this.state.display) {
-      var content = <div className="OFS_content">{this.props.children}</div>;
+      content = <div className="OFS_content">{this.props.children}</div>;
+      src = "/img/arrow_down.png";
     }
     return (
-      <div className="OFS_Content" onClick={this.onClick}>
-        <h2 className="OFS_title">{this.props.title}</h2>
+      <div className="OFS_Content">
+        <h2 className="OFS_title" onClick={this.onClick}>
+          <img src={src}></img>
+          {this.props.title}
+        </h2>
         {content}
       </div>
     );
@@ -123,7 +128,6 @@ OFS.Main = React.createClass({
     return (
       <div className="OFS_Main">
         <OFS.Description />
-        <OFS.User user="kajiiiro" />
       </div>
     );
   }
