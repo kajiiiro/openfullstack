@@ -46,7 +46,7 @@ OFS.Content = React.createClass({
         <p>Created: {this.props.date}</p>
         {this.props.children}
       </div>;
-      src = "/img/arrow_down.png";
+      src = "img/arrow_down.png";
     }
     return (
       <div className="OFS_Content">
