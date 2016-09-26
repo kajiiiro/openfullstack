@@ -54,6 +54,7 @@ $contentMargin: 15%;
 body {
   @include myTheme;
   @include myFont;
+  overflow-y: scroll;
   h1 {
     @include myTheme($colorTitleFont, $colorTitle);
     @include myPadding(5%);
