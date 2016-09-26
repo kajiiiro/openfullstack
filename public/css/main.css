@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/* line 54, main.scss */
 body {
   width: 100%;
   height: auto;
@@ -20,7 +21,9 @@ body {
   color: #50514F;
   background-color: #FFFCFC;
   text-align: center;
+  font-family: 'Roboto', sans-serif;
 }
+/* line 57, main.scss */
 body h1 {
   width: 100%;
   height: auto;
@@ -28,25 +31,33 @@ body h1 {
   color: #FCDC4D;
   background-color: #36558F;
   text-align: center;
-  font-size: 100px;
   padding-top: 5%;
   padding-bottom: 5%;
+  font-family: 'Baloo Bhai', cursive;
+  font-size: 100px;
 }
+/* line 62, main.scss */
+body h1 img {
+  height: 50px;
+}
+/* line 66, main.scss */
 body .OFS_title {
   width: 100%;
   height: auto;
   margin: 0;
   color: #50514F;
-  background-color: #f49cb7;
+  background-color: #FA7921;
   text-align: center;
   font-size: 50px;
 }
+/* line 69, main.scss */
 body .OFS_title img {
-  padding-right: 10px;
+  padding-top: 5px;
   padding-bottom: 5px;
+  padding-right: 10px;
   height: 25px;
-  width: 25px;
 }
+/* line 75, main.scss */
 body .OFS_content {
   width: 100%;
   height: auto;
@@ -59,8 +70,9 @@ body .OFS_content {
   margin-left: 15%;
   margin-right: 15%;
   padding-top: 10px;
-  font-family: 'Gulim';
+  padding-bottom: 10px;
 }
+/* line 80, main.scss */
 body footer {
   width: 100%;
   height: auto;
@@ -68,8 +80,11 @@ body footer {
   color: #FCDC4D;
   background-color: #36558F;
   text-align: center;
+  padding-top: 10px;
   padding-bottom: 10px;
+  font-family: 'Baloo Bhai', cursive;
 }
+/* line 84, main.scss */
 body footer * {
   width: 100%;
   height: auto;

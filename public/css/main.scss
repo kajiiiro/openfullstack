@@ -18,8 +18,8 @@ $colorBase: #FFFCFC;
 $colorBaseFont: #50514F;
 $colorTitle: #36558F;
 $colorTitleFont: #FCDC4D;
-$colorContentTitleEven: #f49cb7;
-$colorContentTitleOdd: #f6c9d7;
+$colorContentTitle: #FA7921;
+$colorContentTitleFont: #50514F;
 $contentMargin: 15%;
 
 @mixin myTheme($font: $colorBaseFont, $background: $colorBase) {
@@ -38,36 +38,49 @@ $contentMargin: 15%;
   margin-right: $contentMargin;
 }
 
+@mixin myPadding($padding) {
+  padding-top: $padding;
+  padding-bottom: $padding;
+}
+
+@mixin myFont {
+  font-family: 'Roboto', sans-serif;
+}
+
+@mixin myTitleFont {
+  font-family: 'Baloo Bhai', cursive;
+}
+
 body {
   @include myTheme;
+  @include myFont;
   h1 {
     @include myTheme($colorTitleFont, $colorTitle);
+    @include myPadding(5%);
+    @include myTitleFont;
     font-size: 100px;
-    padding-top: 5%;
-    padding-bottom: 5%;
+    img {
+      height: 50px;
+    }
   }
   .OFS_title {
-    @include myTheme($colorBaseFont, $colorContentTitleEven);
+    @include myTheme($colorContentTitleFont, $colorContentTitle);
     font-size: 50px;
     img {
+      @include myPadding(5px);
       padding-right: 10px;
-      padding-bottom: 5px;
       height: 25px;
-      width: 25px;
     }
   }
   .OFS_content {
     @include myTheme;
     @include myContent;
-    padding-top: 10px;
-    font-family: 'Gulim';
-  }
-  .OFS_User {
-
+    @include myPadding(10px);
   }
   footer {
     @include myTheme($colorTitleFont, $colorTitle);
-    padding-bottom: 10px;
+    @include myPadding(10px);
+    @include myTitleFont;
     * {
       @include myTheme($colorTitleFont, $colorTitle);
     }

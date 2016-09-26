@@ -33,6 +33,7 @@ OFS.Content = React.createClass({
   },
   propTypes: {
     title: React.PropTypes.string.isRequired,
+    date: React.PropTypes.string.isRequired,
   },
   onClick(e) {
     this.setState({display: !this.state.display});
@@ -41,7 +42,10 @@ OFS.Content = React.createClass({
     var content = null;
     var src = "/img/arrow_right.png";
     if (this.state.display) {
-      content = <div className="OFS_content">{this.props.children}</div>;
+      content = <div className="OFS_content">
+        <p>Created: {this.props.date}</p>
+        {this.props.children}
+      </div>;
       src = "/img/arrow_down.png";
     }
     return (
@@ -60,7 +64,7 @@ OFS.Description = React.createClass({
   render: function() {
     return (
       <div className="OFS_Description">
-        <OFS.Content title="Open Full Stackとは？">
+        <OFS.Content title="Open Full Stackとは？" date="2016-09-26T12:20:56.390Z">
           Open Full Stackの目的は私が経験した技術的な内容を記録することにあります。
           これは以下の考え方に基づいています。
           <ul>
