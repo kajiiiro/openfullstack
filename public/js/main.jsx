@@ -117,11 +117,39 @@ OFS.Anker = React.createClass({
   },
   render: function() {
     var href = this.props.href;
-    var name = href.split("/");
-    name = name[name.length - 1];
+    // 名前が設定されなければ、リンクのファイル名と同一にする
+    var name = this.props.name;
+    if (!name) {
+      name = href.split("/");
+      name = name[name.length - 1];
+    }
     return (
       <div className="OFS_Anker">
         <a href={href} name={name}>{name}</a>
+      </div>
+    );
+  }
+});
+
+OFS.Archives = React.createClass({
+  render: function() {
+    return (
+      <div className="OFS_Archives">
+        <OFS.Content title="過去アーカイブ" date="2016-09-27T13:27:02.025Z">
+          今までお名前.comのVPSでサイトを運用していました。
+          AWSのサーバレス運用の方が安いと考え、ドメイン含め移行しました。
+          S3, Cloudfront, Route53, Certificate Manager, SESを利用して、
+          たった一日でHTTPSのサーバレスサイト運用ができました。
+          今後その話は記事にするとして、今回は過去のサイトをバックアップしたものと載せます。
+          <br />
+          以下のアーカイブはwgetでミラーしたもので、リンクは過去のドメインになってしまっています。
+          なので、参照だけとなりますが、せっかく書いた記事がだせるだけでも十分ですよね。
+          <ul>
+            <li><OFS.Anker href="archive/1.html" name="過去ページ1" /></li>
+            <li><OFS.Anker href="archive/2.html" name="過去ページ2" /></li>
+            <li><OFS.Anker href="archive/3.html" name="過去ページ3(旧Openfullstackとは？)" /></li>
+          </ul>
+        </OFS.Content>
       </div>
     );
   }
@@ -131,6 +159,7 @@ OFS.Main = React.createClass({
   render: function() {
     return (
       <div className="OFS_Main">
+        <OFS.Archives />
         <OFS.Description />
       </div>
     );
