@@ -306,10 +306,169 @@ OFS.Article001 = React.createClass({
   }
 });
 
+OFS.Article002 = React.createClass({
+  render: function() {
+    var title = "[002]ファイルサーバをS3を実現してみる";
+    var date = "2017-03-04T12:36:53.114Z";
+    return (
+      <div className="OFS_Article">
+        <OFS.Content title={title} date={date}>
+          ファイルサーバがほしいという案件が結構あります。
+          そのときに、S3でいいんじゃないかとも思いますが、
+          エクスプローラで簡単につなげたいことが多いようです。
+          そこで、エクスプローラからつながるSAMBAを使ってファイルを格納し、
+          サーバ側ではそれをS3に格納するという方式で、
+          ファイル容量もコストも抑えることを試してみました。
+          <br />
+          今回はS3をマウントできるgoofysを利用してS3をマウントし、
+          そこに作成したフォルダをSAMBAの共有フォルダとして公開してみます。
+          以下、構築の流れです。
+          <ul>
+            <li>S3バケット作成</li>
+            <li>EC2 IAMロールの作成</li>
+            <li>仮想マシン構築</li>
+            <li>goofysでのマウント</li>
+            <li>sambaでのファイルサービス公開</li>
+            <li>簡単な性能評価</li>
+          </ul>
+          <br />
+          <br />
+          <h2>S3バケット作成</h2>
+          AWSマネジメントコンソールからS3のサービス画面に移り、
+          適当な名前のバケットを作成して下さい。
+          ここでは「s3_openfullstack」という名前を作成したものとして説明します。
+          <br />
+          <br />
+          <h2>EC2 IAMロールの作成</h2>
+          作成したバケットにのみ権限を持つIAMロールを作成しておきます。
+          特定のバケットにのみアクションを許可するには、
+          ポリシーのResouce設定に「arn:aws:s3:::s3_openfullstack」と
+          「arn:aws:s3:::s3_openfullstack/*」を設定します。
+          ポリシーを作成するのが面倒であれば、
+          S3FullAccessを付与したポリシーでも大丈夫です。
+          <br />
+          <br />
+          <h2>仮想マシン構築</h2>
+          今回はAmazon Linuxで行いました。
+          スペックはt2.micro,disk 8GBです。
+          S3にマウントするのでdisk全くいらないです。
+          一点だけ、EC2のIAMロールを先程作成したロールにしておきます。
+          そうすることで、このEC2からのAWS APIの利用が、
+          ロールの権限が自動で適用されます。
+          別に「aws configure」でクレデンシャル設定してもいいのですが、
+          「~/.aws/credential」に平文で残ります。
+          それよりは安心設計です。
+          あとセキュリティグループはとりあえず、
+          全てのトラフィックをソースIP制限してやってました。
+          sambaで必要なポート等を調べるの面倒だったので…。
+          <br />
+          <br />
+          <h2>goofysでのマウント</h2>
+          つらつらコマンド打ってインストールしていきます。
+          <pre>
+          $ sudo yum update<br />
+          $ sudo yum install golang fuse<br />
+          $ mkdir /home/ec2-user/go<br />
+          $ echo "export GOPATH=/home/ec2-user/go" >> ~/.bashrc<br />
+          $ . ~/.bashrc<br />
+          $ go get github.com/kahing/goofys<br />
+          $ go install github.com/kahing/goofys<br />
+          </pre>
+          きれいな形ではないですが、
+          今回はお試しなので、ホームディレクトリ内で作業をしていきます。
+          <pre>
+          $ mkdir mnt<br />
+          $ /home/ec2-user/go/bin/goofys s3_openfullstack mnt<br />
+          $ df -h<br />
+          ファイルシス     サイズ  使用  残り 使用% マウント位置<br />
+          devtmpfs           488M   56K  488M    1% /dev<br />
+          tmpfs              498M     0  498M    0% /dev/shm<br />
+          /dev/xvda1         7.8G  1.7G  6.1G   22% /<br />
+          s3_openfullstack   1.0P     0  1.0P    0% /home/ec2-user/mnt<br />
+          </pre>
+          残りディスクの単位で「P」なんてはじめて見ました。ペタってすげー。
+          マウントできたので、一旦アンマウントし、
+          永続化設定します。
+          <pre>
+          $ sudo umount mnt<br />
+          $ sudo vim /etc/fstab<br />
+          ### 以下の行を追記する<br />
+          /home/ec2-user/go/bin/goofys#s3_openfullstack /home/ec2-user/mnt fuse _netdev,allow_other,--file-mode=0666,--uid=500,--gid=500 0 0<br />
+          $ sudo mount -a<br />
+          </pre>
+          <br />
+          <br />
+          <h2>sambaでのファイルサービス公開</h2>
+          再度、つらつらコマンド打ってインストールです。
+          あと、sambaの共有用フォルダも作っておきます。
+          <pre>
+          $ sudo yum install samba<br />
+          $ sudo chkconfig smb on<br />
+          $ mkdir mnt/public<br />
+          $ egrep -v '(^#|^;|^$|[ ]*#)' /etc/samba/smb.conf<br />
+          [global]<br />
+            workgroup = MYGROUP<br />
+            server string = Samba Server Version %v<br />
+            min protocol = SMB2<br />
+            log file = /var/log/samba/log.%m<br />
+            max log size = 50<br />
+            security = user<br />
+            passdb backend = tdbsam<br />
+            load printers = no<br />
+            cups options = raw<br />
+          [public]<br />
+            comment = Public Stuff<br />
+            path = /home/ec2-user/mnt/public<br />
+            public = yes<br />
+            writable = yes<br />
+            printable = no<br />
+            write list = +staff<br />
+          $ sudo pdbedit -a ec2-user<br />
+          $ sudo service smb start<br />
+          </pre>
+          手前のPCがmacでしたので、フィンガーの「移動」→「サーバへ接続」から、
+          「smb://グローバルIP/public」と入力して接続します。
+          ユーザを「ec2-user」、パスワードはpdbedit時のものを入力して接続します。
+          dfでマウントできたか見ておきます。
+          <pre>
+          $ df -h<br />
+          Filesystem                        Size   Used  Avail Capacity iused         ifree %iused  Mounted on<br />
+          /dev/disk1                       233Gi   73Gi  160Gi    32% 2145464    4292821815    0%   /<br />
+          devfs                            332Ki  332Ki    0Bi   100%    1148             0  100%   /dev<br />
+          map -hosts                         0Bi    0Bi    0Bi   100%       0             0  100%   /net<br />
+          map auto_home                      0Bi    0Bi    0Bi   100%       0             0  100%   /home<br />
+          //ec2-user@52.199.133.64/public  1.0Pi    0Bi  1.0Pi     0% 18446744073709551614 1099511627776 1677721600%   /Volumes/public-4<br />
+          </pre>
+          マウントできているので成功ですね。
+          <br />
+          <br />
+          <h2>簡単な性能評価</h2>
+          今回は10MBのファイルを作ってファイル転送してみました。
+          以下のコマンドをmacから打ってみます。
+          <pre>
+          $ dd if=/dev/zero of=tempfile bs=1m count=10<br />
+          $ time mv tmpfile /Volumes/public-4<br /><br />
+          real  0m6.113s<br />
+          user  0m0.003s<br />
+          sys 0m0.037s<br />
+          </pre>
+          1.635[MB/sec]。
+          インターネット経由だし、こんなものかもしれませんね。
+          空ファイルでももっさりした動きでした。
+          以上、おわりです。
+          <br />
+          <br />
+        </OFS.Content>
+      </div>
+    );
+  }
+});
+
 OFS.Main = React.createClass({
   render: function() {
     return (
       <div className="OFS_Main">
+        <OFS.Article002 />
         <OFS.Article001 />
         <OFS.Archives />
         <OFS.Description />
@@ -322,3 +481,4 @@ ReactDOM.render(
   <OFS.Main />,
   document.getElementById('main')
 );
+
