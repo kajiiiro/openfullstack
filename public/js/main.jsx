@@ -308,7 +308,7 @@ OFS.Article001 = React.createClass({
 
 OFS.Article002 = React.createClass({
   render: function() {
-    var title = "[002]ファイルサーバをS3を実現してみる";
+    var title = "[002]ファイルサーバをS3で実現してみる";
     var date = "2017-03-04T12:36:53.114Z";
     return (
       <div className="OFS_Article">
